@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel | খুলনার পাম্পে তেল আছে</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#07111b;
+      --card:rgba(255,255,255,.08);
+      --card2:rgba(255,255,255,.05);
+      --border:rgba(255,255,255,.12);
+      --text:#eef4ff;
+      --muted:#aebed0;
+      --accent:#4fd1c5;
+      --accent2:#5ea8ff;
+      --red:#ff6b6b;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:600;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(94,168,255,.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(79,209,197,.14), transparent 28%),
+        linear-gradient(135deg, #07111b 0%, #0b1724 50%, #07111b 100%);
+      min-height:100vh;
+    }
+
+    .container{
+      width:min(1120px, calc(100% - 24px));
+      margin:auto;
+      padding:24px 0 28px;
+    }
+
+    .login-box,
+    .hero,
+    .panel{
+      background:linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+    }
+
+    .login-box{
+      max-width:430px;
+      margin:72px auto;
+      padding:24px;
+    }
+
+    .hero{
+      padding:24px;
+      margin-bottom:18px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(79,209,197,.14);
+      border:1px solid rgba(79,209,197,.22);
+      color:#dffef8;
+      font-size:14px;
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(26px,5vw,42px);
+      line-height:1.15;
+    }
+
+    .hero p,
+    .hint,
+    .sub{
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:.95fr 1.05fr;
+      gap:18px;
+    }
+
+    .panel{
+      padding:18px;
+    }
+
+    .panel h2{
+      margin:0 0 6px;
+      font-size:22px;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:none;
+      outline:none;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:600;
+      border-radius:14px;
+      padding:13px 14px;
+    }
+
+    input::placeholder, textarea::placeholder{color:#95a7ba}
+    select option{color:#111}
+    textarea{min-height:100px; resize:vertical;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .full{grid-column:1/-1}
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      color:#dce8f6;
+    }
+
+    .btns,.act{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .btn,.mini-btn{
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:13px 16px;
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:700;
+      transition:.2s ease;
+    }
+
+    .btn:hover,.mini-btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      background:linear-gradient(135deg, var(--accent2), var(--accent));
+      color:#051119;
+    }
+
+    .btn-soft{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .edit{
+      background:rgba(79,209,197,.14);
+      color:#dbfff8;
+      border:1px solid rgba(79,209,197,.22);
+    }
+
+    .delete{
+      background:rgba(255,107,107,.14);
+      color:#ffd6d6;
+      border:1px solid rgba(255,107,107,.22);
+    }
+
+    .list{
+      display:grid;
+      gap:12px;
+      max-height:760px;
+      overflow:auto;
+    }
+
+    .card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .name{
+      margin:0;
+      font-size:20px;
+    }
+
+    .addr{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .mini{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .chip{
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .success{
+      color:#baffd4;
+      margin-top:10px;
+      font-size:14px;
+    }
+
+    .hidden{display:none}
+
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .full{grid-column:auto}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginView" class="container">
+    <div class="login-box">
+      <div class="tag">🔐 Admin Access</div>
+      <h1>অ্যাডমিন লগইন</h1>
+      <p class="hint">এই প্যানেল থেকে শুধু অ্যাডমিন পাম্পের তথ্য যোগ, আপডেট ও ডিলিট করতে পারবে।</p>
+
+      <div style="margin-top:18px;">
+        <label for="adminPassword">পাসওয়ার্ড</label>
+        <input type="password" id="adminPassword" placeholder="আপনার অ্যাডমিন পাসওয়ার্ড লিখুন">
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary" id="loginBtn">লগইন</button>
+      </div>
+
+      <div class="hint">এই version-এ front-end password ব্যবহার করা হয়েছে। পরে Firebase Authentication লাগানো যাবে।</div>
+    </div>
+  </div>
+
+  <div id="adminView" class="container hidden">
+    <section class="hero">
+      <div class="tag">⛽ খুলনার পাম্পে তেল আছে</div>
+      <h1>Admin Panel</h1>
+      <p>এখান থেকে যে তথ্য সেভ করা হবে, তা index page-এ live দেখা যাবে।</p>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <h2 id="formHeading">নতুন পাম্প যোগ করুন</h2>
+        <div class="sub">শুধুমাত্র অ্যাডমিন ডেটা কন্ট্রোল করবে</div>
+
+        <form id="pumpForm">
+          <div class="grid">
+            <div class="full">
+              <label for="pumpName">পাম্পের নাম</label>
+              <input type="text" id="pumpName" placeholder="যেমন: পদ্মা ফিলিং স্টেশন" required>
+            </div>
+
+            <div class="full">
+              <label for="pumpAddress">ঠিকানা / এলাকা</label>
+              <input type="text" id="pumpAddress" placeholder="যেমন: শিববাড়ী মোড়, খুলনা" required>
+            </div>
+
+            <div>
+              <label for="pumpLat">Latitude</label>
+              <input type="number" step="any" id="pumpLat" placeholder="22.8456" required>
+            </div>
+
+            <div>
+              <label for="pumpLng">Longitude</label>
+              <input type="number" step="any" id="pumpLng" placeholder="89.5403" required>
+            </div>
+
+            <div>
+              <label for="octane">অকটেন</label>
+              <select id="octane">
+                <option value="yes">আছে</option>
+                <option value="no">নেই</option>
+                <option value="unknown">অজানা</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="diesel">ডিজেল</label>
+              <select id="diesel">
+                <option value="yes">আছে</option>
+                <option value="no">নেই</option>
+                <option value="unknown">অজানা</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label for="lpg">এলপিজি</label>
+              <select id="lpg">
+                <option value="yes">আছে</option>
+                <option value="no">নেই</option>
+                <option value="unknown">অজানা</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label for="note">নোট</label>
+              <textarea id="note" placeholder="যেমন: অকটেন সীমিত, ডিজেল পাওয়া যাচ্ছে, এলপিজি বন্ধ..."></textarea>
+            </div>
+
+            <div class="full">
+              <label for="updatedBy">আপডেট করেছেন</label>
+              <input type="text" id="updatedBy" placeholder="যেমন: Abraham Tuhin">
+            </div>
+          </div>
+
+          <div class="btns">
+            <button type="submit" class="btn btn-primary">সেভ করুন</button>
+            <button type="button" class="btn btn-soft" id="clearBtn">ক্লিয়ার</button>
+            <button type="button" class="btn btn-soft" id="logoutBtn">লগআউট</button>
+          </div>
+
+          <div class="success" id="messageBox"></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>বর্তমান পাম্প তালিকা</h2>
+        <div class="sub">এখান থেকে Edit / Delete করতে পারবেন</div>
+        <div class="list" id="adminPumpList"></div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const ADMIN_PASSWORD = "rana@2000T";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsf6RU_psmX_5eGIfaLdJewuPxYrtw7v0",
+      authDomain: "eid-jammat-khulna.firebaseapp.com",
+      projectId: "eid-jammat-khulna",
+      storageBucket: "eid-jammat-khulna.firebasestorage.app",
+      messagingSenderId: "748662571074",
+      appId: "1:748662571074:web:9ff8b777b1236993792ddb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loginView = document.getElementById("loginView");
+    const adminView = document.getElementById("adminView");
+    const loginBtn = document.getElementById("loginBtn");
+    const adminPassword = document.getElementById("adminPassword");
+    const form = document.getElementById("pumpForm");
+    const messageBox = document.getElementById("messageBox");
+    const adminPumpList = document.getElementById("adminPumpList");
+    const formHeading = document.getElementById("formHeading");
+
+    let editingId = null;
+    let allPumps = [];
+
+    function showAdmin() {
+      loginView.classList.add("hidden");
+      adminView.classList.remove("hidden");
+      sessionStorage.setItem("khulna_pump_admin_logged_in", "yes");
+    }
+
+    function showLogin() {
+      adminView.classList.add("hidden");
+      loginView.classList.remove("hidden");
+      sessionStorage.removeItem("khulna_pump_admin_logged_in");
+    }
+
+    loginBtn.addEventListener("click", () => {
+      if (adminPassword.value === ADMIN_PASSWORD) {
+        showAdmin();
+      } else {
+        alert("ভুল পাসওয়ার্ড");
+      }
+    });
+
+    if (sessionStorage.getItem("khulna_pump_admin_logged_in") === "yes") {
+      showAdmin();
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", showLogin);
+
+    function clearForm() {
+      editingId = null;
+      form.reset();
+      formHeading.textContent = "নতুন পাম্প যোগ করুন";
+      messageBox.textContent = "";
+    }
+
+    document.getElementById("clearBtn").addEventListener("click", clearForm);
+
+    function formatDate(dateValue) {
+      if (!dateValue) return "সময় পাওয়া যায়নি";
+      const d = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
+      return d.toLocaleString("bn-BD", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function statusText(status) {
+      if (status === "yes") return "আছে";
+      if (status === "no") return "নেই";
+      return "অজানা";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        name: document.getElementById("pumpName").value.trim(),
+        address: document.getElementById("pumpAddress").value.trim(),
+        lat: parseFloat(document.getElementById("pumpLat").value),
+        lng: parseFloat(document.getElementById("pumpLng").value),
+        octane: document.getElementById("octane").value,
+        diesel: document.getElementById("diesel").value,
+        lpg: document.getElementById("lpg").value,
+        note: document.getElementById("note").value.trim(),
+        updatedBy: document.getElementById("updatedBy").value.trim() || "Admin",
+        updatedAt: serverTimestamp()
+      };
+
+      if (!payload.name || !payload.address || isNaN(payload.lat) || isNaN(payload.lng)) {
+        alert("সব প্রয়োজনীয় তথ্য সঠিকভাবে দিন");
+        return;
+      }
+
+      try {
+        if (editingId) {
+          await updateDoc(doc(db, "pumps", editingId), payload);
+          messageBox.textContent = "পাম্পের তথ্য সফলভাবে আপডেট হয়েছে।";
+        } else {
+          await addDoc(collection(db, "pumps"), payload);
+          messageBox.textContent = "নতুন পাম্প সফলভাবে যোগ হয়েছে।";
+        }
+        clearForm();
+      } catch (error) {
+        alert("সেভ করতে সমস্যা হয়েছে");
+        console.error(error);
+      }
+    });
+
+    function editPump(id) {
+      const pump = allPumps.find(p => p.id === id);
+      if (!pump) return;
+
+      editingId = id;
+      formHeading.textContent = "পাম্পের তথ্য আপডেট করুন";
+
+      document.getElementById("pumpName").value = pump.name || "";
+      document.getElementById("pumpAddress").value = pump.address || "";
+      document.getElementById("pumpLat").value = pump.lat ?? "";
+      document.getElementById("pumpLng").value = pump.lng ?? "";
+      document.getElementById("octane").value = pump.octane || "unknown";
+      document.getElementById("diesel").value = pump.diesel || "unknown";
+      document.getElementById("lpg").value = pump.lpg || "unknown";
+      document.getElementById("note").value = pump.note || "";
+      document.getElementById("updatedBy").value = pump.updatedBy || "";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function removePump(id) {
+      const ok = confirm("আপনি কি এই পাম্পটি ডিলিট করতে চান?");
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, "pumps", id));
+      } catch (error) {
+        alert("ডিলিট করতে সমস্যা হয়েছে");
+        console.error(error);
+      }
+    }
+
+    window.editPump = editPump;
+    window.removePump = removePump;
+
+    const q = query(collection(db, "pumps"), orderBy("updatedAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      allPumps = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      adminPumpList.innerHTML = allPumps.length ? allPumps.map(pump => `
+        <div class="card">
+          <div class="row">
+            <div>
+              <h3 class="name">${pump.name || ""}</h3>
+              <div class="addr">${pump.address || ""}</div>
+            </div>
+            <div class="chip">আপডেট: ${formatDate(pump.updatedAt)}</div>
+          </div>
+
+          <div class="mini">
+            <div class="chip">অকটেন: ${statusText(pump.octane)}</div>
+            <div class="chip">ডিজেল: ${statusText(pump.diesel)}</div>
+            <div class="chip">এলপিজি: ${statusText(pump.lpg)}</div>
+            <div class="chip">By: ${pump.updatedBy || "Admin"}</div>
+          </div>
+
+          ${pump.note ? `<div style="margin-top:12px; color:var(--muted); line-height:1.7;">${pump.note}</div>` : ""}
+
+          <div class="act">
+            <button class="mini-btn edit" onclick="editPump('${pump.id}')">Edit</button>
+            <button class="mini-btn delete" onclick="removePump('${pump.id}')">Delete</button>
+          </div>
+        </div>
+      `).join("") : `<div style="color:var(--muted)">এখনও কোনো পাম্প যোগ করা হয়নি।</div>`;
+    });
+  </script>
+</body>
+</html>

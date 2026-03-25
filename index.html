@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>খুলনার পাম্পে তেল আছে</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    :root{
+      --bg:#07111b;
+      --bg2:#0d1a29;
+      --card:rgba(255,255,255,.08);
+      --card2:rgba(255,255,255,.05);
+      --border:rgba(255,255,255,.12);
+      --text:#eef4ff;
+      --muted:#aebed0;
+      --accent:#4fd1c5;
+      --accent2:#5ea8ff;
+      --green:#2ecc71;
+      --red:#ff6b6b;
+      --yellow:#f7c948;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box}
+
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:600;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(94,168,255,.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(79,209,197,.14), transparent 28%),
+        linear-gradient(135deg, #07111b 0%, #0b1724 50%, #07111b 100%);
+      min-height:100vh;
+    }
+
+    .container{
+      width:min(1220px, calc(100% - 24px));
+      margin:auto;
+    }
+
+    .hero{
+      padding:24px 0 18px;
+    }
+
+    .hero-box{
+      background:linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:24px;
+      backdrop-filter:blur(14px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-box::after{
+      content:"";
+      position:absolute;
+      width:180px;
+      height:180px;
+      right:-30px;
+      top:-30px;
+      background:radial-gradient(circle, rgba(79,209,197,.18), transparent 65%);
+      pointer-events:none;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(79,209,197,.14);
+      border:1px solid rgba(79,209,197,.22);
+      color:#dffef8;
+      font-size:14px;
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(28px,5vw,48px);
+      line-height:1.15;
+      letter-spacing:-.5px;
+    }
+
+    .hero p{
+      margin:12px 0 0;
+      color:var(--muted);
+      line-height:1.75;
+      max-width:850px;
+    }
+
+    .top-stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .stat{
+      background:var(--card2);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .stat .label{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:6px;
+    }
+
+    .stat .value{
+      font-size:24px;
+      font-weight:700;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+      padding-bottom:28px;
+    }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      overflow:hidden;
+    }
+
+    .panel-head{
+      padding:18px 18px 0;
+    }
+
+    .panel-head h2{
+      margin:0;
+      font-size:22px;
+    }
+
+    .sub{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .toolbar{
+      padding:18px;
+      display:grid;
+      grid-template-columns:1fr 170px 170px;
+      gap:10px;
+    }
+
+    input, select{
+      width:100%;
+      border:none;
+      outline:none;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:600;
+      border-radius:14px;
+      padding:13px 14px;
+    }
+
+    input::placeholder{color:#95a7ba}
+    select option{color:#111}
+
+    .list{
+      padding:0 18px 18px;
+      display:grid;
+      gap:14px;
+      max-height:880px;
+      overflow:auto;
+    }
+
+    .card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:20px;
+      padding:18px;
+      transition:.2s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(79,209,197,.28);
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .name{
+      margin:0;
+      font-size:22px;
+    }
+
+    .addr{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.65;
+    }
+
+    .time{
+      font-size:13px;
+      background:rgba(94,168,255,.12);
+      border:1px solid rgba(94,168,255,.2);
+      color:#dcecff;
+      padding:8px 12px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .fuel-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .fuel{
+      text-align:center;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .fuel-title{
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:92px;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:14px;
+    }
+
+    .yes{
+      background:rgba(46,204,113,.15);
+      color:#baffd4;
+      border:1px solid rgba(46,204,113,.25);
+    }
+
+    .no{
+      background:rgba(255,107,107,.15);
+      color:#ffd0d0;
+      border:1px solid rgba(255,107,107,.25);
+    }
+
+    .unknown{
+      background:rgba(247,201,72,.15);
+      color:#ffe89e;
+      border:1px solid rgba(247,201,72,.25);
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .chip{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.1);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .note{
+      margin-top:14px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .actions{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      padding:10px 14px;
+      font-family:"Hind Siliguri",sans-serif;
+      font-weight:700;
+      transition:.2s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-map{
+      background:rgba(94,168,255,.12);
+      border:1px solid rgba(94,168,255,.22);
+      color:#dcebff;
+    }
+
+    #map{
+      width:100%;
+      height:100%;
+      min-height:760px;
+    }
+
+    .empty{
+      text-align:center;
+      color:var(--muted);
+      padding:40px 16px;
+    }
+
+    .footer{
+      text-align:center;
+      color:#93a5b8;
+      padding:0 0 28px;
+      font-size:14px;
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip{
+      background:#0f1a28;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    @media(max-width:980px){
+      .grid{grid-template-columns:1fr}
+      #map{min-height:380px}
+      .top-stats{grid-template-columns:repeat(2,1fr)}
+      .toolbar{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:640px){
+      .toolbar{grid-template-columns:1fr}
+      .fuel-grid{grid-template-columns:1fr}
+      .top-stats{grid-template-columns:1fr 1fr}
+      .time{white-space:normal}
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-box">
+        <div class="tag">⛽ খুলনা সিটি ফুয়েল ট্র্যাকার</div>
+        <h1>খুলনার পাম্পে তেল আছে</h1>
+        <p>
+          খুলনা শহরের কোন পাম্পে অকটেন, ডিজেল ও এলপিজি পাওয়া যাচ্ছে তা দ্রুত জানুন।
+          এই তথ্য শুধুমাত্র অ্যাডমিন দ্বারা নিয়ন্ত্রিত এবং লাইভ আপডেট হয়।
+        </p>
+
+        <div class="top-stats">
+          <div class="stat">
+            <div class="label">মোট পাম্প</div>
+            <div class="value" id="totalPumps">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">অকটেন আছে</div>
+            <div class="value" id="octaneCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">ডিজেল আছে</div>
+            <div class="value" id="dieselCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">এলপিজি আছে</div>
+            <div class="value" id="lpgCount">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container grid">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>পাম্প তালিকা</h2>
+        <div class="sub">লাইভ ডেটা • অ্যাডমিন আপডেট অনুযায়ী</div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="পাম্পের নাম বা এলাকা লিখে খুঁজুন..." />
+        <select id="fuelFilter">
+          <option value="all">সব জ্বালানি</option>
+          <option value="octane">অকটেন</option>
+          <option value="diesel">ডিজেল</option>
+          <option value="lpg">এলপিজি</option>
+        </select>
+        <select id="statusFilter">
+          <option value="all">সব স্ট্যাটাস</option>
+          <option value="yes">আছে</option>
+          <option value="no">নেই</option>
+          <option value="unknown">অজানা</option>
+        </select>
+      </div>
+
+      <div class="list" id="pumpList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>লোকেশন ম্যাপ</h2>
+        <div class="sub">পাম্পের লোকেশন ম্যাপে দেখুন</div>
+      </div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <div class="container">
+    <div class="footer">© খুলনার পাম্পে তেল আছে</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsf6RU_psmX_5eGIfaLdJewuPxYrtw7v0",
+      authDomain: "eid-jammat-khulna.firebaseapp.com",
+      projectId: "eid-jammat-khulna",
+      storageBucket: "eid-jammat-khulna.firebasestorage.app",
+      messagingSenderId: "748662571074",
+      appId: "1:748662571074:web:9ff8b777b1236993792ddb",
+      measurementId: "G-L11Z34CYMJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const db = getFirestore(app);
+
+    let allPumps = [];
+    let map;
+    let markersLayer;
+
+    function initMap() {
+      map = L.map("map").setView([22.8456, 89.5403], 12.5);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function bnDate(dateValue) {
+      if (!dateValue) return "সময় পাওয়া যায়নি";
+      const d = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
+      return d.toLocaleString("bn-BD", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function badge(status) {
+      if (status === "yes") return `<span class="badge yes">আছে</span>`;
+      if (status === "no") return `<span class="badge no">নেই</span>`;
+      return `<span class="badge unknown">অজানা</span>`;
+    }
+
+    function statusText(status) {
+      if (status === "yes") return "আছে";
+      if (status === "no") return "নেই";
+      return "অজানা";
+    }
+
+    function updateStats(pumps) {
+      document.getElementById("totalPumps").textContent = pumps.length;
+      document.getElementById("octaneCount").textContent = pumps.filter(p => p.octane === "yes").length;
+      document.getElementById("dieselCount").textContent = pumps.filter(p => p.diesel === "yes").length;
+      document.getElementById("lpgCount").textContent = pumps.filter(p => p.lpg === "yes").length;
+    }
+
+    function renderMap(pumps) {
+      markersLayer.clearLayers();
+
+      pumps.forEach(pump => {
+        if (typeof pump.lat !== "number" || typeof pump.lng !== "number") return;
+
+        const marker = L.marker([pump.lat, pump.lng]).addTo(markersLayer);
+        marker.bindPopup(`
+          <div style="font-family:'Hind Siliguri',sans-serif; min-width:210px;">
+            <strong style="font-size:18px;">${pump.name || ""}</strong><br>
+            <span style="color:#bed1e7;">${pump.address || ""}</span><br><br>
+            অকটেন: ${statusText(pump.octane)}<br>
+            ডিজেল: ${statusText(pump.diesel)}<br>
+            এলপিজি: ${statusText(pump.lpg)}
+          </div>
+        `);
+        marker.pumpId = pump.id;
+      });
+    }
+
+    function focusOnMap(id) {
+      const pump = allPumps.find(p => p.id === id);
+      if (!pump || typeof pump.lat !== "number" || typeof pump.lng !== "number") return;
+
+      map.setView([pump.lat, pump.lng], 15, { animate: true });
+      markersLayer.eachLayer(layer => {
+        if (layer.pumpId === id) layer.openPopup();
+      });
+    }
+
+    window.focusOnMap = focusOnMap;
+
+    function getFilteredPumps() {
+      const search = document.getElementById("searchInput").value.trim().toLowerCase();
+      const fuel = document.getElementById("fuelFilter").value;
+      const status = document.getElementById("statusFilter").value;
+
+      return allPumps.filter(pump => {
+        const matchesSearch =
+          (pump.name || "").toLowerCase().includes(search) ||
+          (pump.address || "").toLowerCase().includes(search) ||
+          (pump.note || "").toLowerCase().includes(search);
+
+        let matchesFuel = true;
+
+        if (fuel !== "all" && status !== "all") {
+          matchesFuel = pump[fuel] === status;
+        } else if (fuel !== "all" && status === "all") {
+          matchesFuel = ["yes","no","unknown"].includes(pump[fuel]);
+        } else if (fuel === "all" && status !== "all") {
+          matchesFuel = pump.octane === status || pump.diesel === status || pump.lpg === status;
+        }
+
+        return matchesSearch && matchesFuel;
+      });
+    }
+
+    function renderList() {
+      const pumpList = document.getElementById("pumpList");
+      const filtered = getFilteredPumps();
+
+      updateStats(allPumps);
+      renderMap(filtered);
+
+      if (!filtered.length) {
+        pumpList.innerHTML = `<div class="empty">কোনো পাম্প পাওয়া যায়নি।</div>`;
+        return;
+      }
+
+      pumpList.innerHTML = filtered.map(pump => `
+        <div class="card">
+          <div class="top">
+            <div>
+              <h3 class="name">${pump.name || ""}</h3>
+              <div class="addr">${pump.address || ""}</div>
+            </div>
+            <div class="time">আপডেট: ${bnDate(pump.updatedAt)}</div>
+          </div>
+
+          <div class="fuel-grid">
+            <div class="fuel">
+              <div class="fuel-title">অকটেন</div>
+              ${badge(pump.octane)}
+            </div>
+            <div class="fuel">
+              <div class="fuel-title">ডিজেল</div>
+              ${badge(pump.diesel)}
+            </div>
+            <div class="fuel">
+              <div class="fuel-title">এলপিজি</div>
+              ${badge(pump.lpg)}
+            </div>
+          </div>
+
+          <div class="meta">
+            <div class="chip">দিয়েছেন: ${pump.updatedBy || "Admin"}</div>
+            <div class="chip">Lat: ${pump.lat ?? ""}</div>
+            <div class="chip">Lng: ${pump.lng ?? ""}</div>
+          </div>
+
+          ${pump.note ? `<div class="note">${pump.note}</div>` : ""}
+
+          <div class="actions">
+            <button class="btn btn-map" onclick="focusOnMap('${pump.id}')">ম্যাপে দেখুন</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("searchInput").addEventListener("input", renderList);
+    document.getElementById("fuelFilter").addEventListener("change", renderList);
+    document.getElementById("statusFilter").addEventListener("change", renderList);
+
+    initMap();
+
+    const q = query(collection(db, "pumps"), orderBy("updatedAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      allPumps = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      renderList();
+    });
+  </script>
+</body>
+</html>
